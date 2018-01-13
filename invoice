@@ -1,0 +1,178 @@
+#$Id: invoice,v 1.10 2018/01/13 14:58:04 fulford Exp fulford $
+#$Source: /src/admin/usr/local/etc/RCS/invoice,v $
+#$Author: fulford $
+#$Revision: 1.10 $
+#
+# Copyright (c) 2012-2013 Clifford W Fulford. All rights reserved.
+# For assistance  call 0709 229 5385
+#		e-mail fulford@fulford.net
+################################################################
+co=fulford
+sdir=~/$co/invoices
+syntax=`basename $0`" [invoice_no]"
+cd $sdir
+while [ $# -gt 0 ];do
+	case $1 in
+		[0-9][0-9][0-9][0-9])invno=$1;shift;;
+		FA[0-9][0-9][0-9][0-9])invno=$1;shift;;
+		*) echo "syntax: $syntax" >&2;exit;;
+	esac
+done
+echo $invno
+invno=${invno:-`ls [0-9][0-9][0-9][0-9]\.ms|gawk -F. 'END{print $1  + 1}'`}
+inv=$invno.ms
+if [ ! -f $invno.pdf ];then
+	day=`date +%d`
+	case $day in
+		[2-9]*1)suffix="st";;
+		[2-9]*2)suffix="nd";;
+		2*3)suffix="rd";;
+		*)suffix="th";;
+	esac
+	clients=`find ~/$co/clients/ -maxdepth 1 -mindepth 1 -type d -mtime -365 -exec basename {} \; `
+	PS3="Select client: "	
+	clear;echo
+	select c in $clients new quit;do
+		case $c in
+			quit) exit;;
+		esac
+		break	
+	done
+	
+	if [ -r ~/$co/clients/$c/cdetails ];then
+		. ~/$co/clients/$c/cdetails
+	elif [ -r ~/$co/clients/$c/$c.dat ];then
+		. ~/$co/clients/$c/$c.dat
+	fi
+	clear
+	echo
+	echo
+	company=${company:-`read -p "Company name: " company`}
+	add1=${add1:-`read -p "Address 1: " add1`}
+	add2=${add2:-`read -p "Address 2: " add2`}
+	town=${town:-`read -p "Town     : " town`}
+	county=${county:-`read -p "County     : " county`}
+	pcode=${pcode:-`read -p "Post code: " pcode`}
+		
+	date=`date "+%e$suffix %B %Y"`
+	clear
+	echo
+	echo $company
+	echo $idate
+	echo
+	read -p "Start date (dd/mm/yy): " sdate
+	read -p "Start time (hh:mm): " stime
+		hours=`echo $stime |gawk -F: '{print $1}'`
+		mins=`echo $stime |gawk -F: '{print $2}'`
+		hours=`bc<<- .
+			scale=2
+			($mins/60) + $hours
+			.
+		`
+	read -p "Rate per hour (£$rate): " r
+		rate=${r:-$rate}
+	read -p "Discount percentage ($discount%): " d
+		discount=${d:-$discount}
+		`
+	cost=`bc<<- .
+		scale=2
+ 		$hours*$rate
+		.
+	`
+	echo $cost
+	discount=`bc <<- .
+		scale=2
+		$cost/100*$discount
+			.
+	subtot=`bc<<- .
+		scale=2
+		$cost - $discount
+		.
+	`
+	vat=`bc<<- .
+		scale=2
+		$subtot / 100 * 20
+		.
+	`
+	tot=`bc<<- .
+		scale=2
+		$subtot + $vat
+		.
+	`
+	echo "\
+.DS C
+.I
+\s+9FULFORD CONSULTING LTD.\s-9
+.sp
+.I
+\s-1t/a\s+1 \s+9CityLinux\s-9
+Company No. 4250037
+.sp 6
+.DE
+.LG
+.B INVOICE
+.NL
+.sp
+.ID 4i
+162 Edward Rd.
+West Bridgford
+Nottingham
+NG2 5GF
+.sp
+Telephone: +44 (0)793 572 8612
+.sp
+VAT Reg. No. 827 5316 22
+.DE
+.sp
+.ID 4i
+DATE:\ $date
+.DE
+.LD
+INVOICE No:\ $invno
+.DE
+.sp 3
+.LD
+TO:
+$company
+$add1
+$add2
+$town
+$pcode
+.DE
+.sp 5
+.TS
+tab (|);
+l r
+l r
+l _
+l r
+l r.
+On site systems administration: 11/06/2013 |$cost
+Less discount				   |$discount
+					   |
+Sub total				   |$subtot
+V.A.T at 20.00%      |$vat
+
+.B
+AMOUNT DUE|$tot
+.R
+.TE
+.SM
+Please make FPS transfers to Santander sort code:090150 Account No.:05912199 
+reference: $invno
+">$inv
+fi
+groff -t -ms $inv >$invno.ps
+gv -watch $invno.ps&
+gvpid=$!
+while : ;do
+	echo -n "Edit invoice? "
+	read reply
+	case $reply in
+		y|Y)  vim $inv
+			groff -t -ms $inv >$invno.ps
+			ps2pdf $invno.ps $invno.pdf;;
+		*) 	break ;;
+	esac
+done
+kill $gvpid
