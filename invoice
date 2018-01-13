@@ -1,7 +1,7 @@
-#$Id: invoice,v 1.32 2018/01/13 16:45:26 fulford Exp fulford $
+#$Id: invoice,v 1.33 2018/01/13 17:02:01 fulford Exp fulford $
 #$Source: /src/admin/usr/local/etc/RCS/invoice,v $
 #$Author: fulford $
-#$Revision: 1.32 $
+#$Revision: 1.33 $
 #
 # Copyright (c) 2012-2013 Clifford W Fulford. All rights reserved.
 # For assistance  call 0709 229 5385
@@ -100,7 +100,14 @@ if [ ! -f $invno.pdf ];then
 		rate=${r:-$rate}
 	read -p "Discount percentage ($discount%): " d
 		discount=${d:-$discount}
-	
+	expense="0.00"
+	read -p "Expenses ($expenses): " e
+	expenses=${$e:=0.00}	
+	if [ $expenses > 0 ];then 
+		add="Expenses"
+	else
+		ad="Expenses included"
+	fi
 	cost=`bc<<- .
 		scale=2
  		$hours*$rate
@@ -114,7 +121,7 @@ if [ ! -f $invno.pdf ];then
 	`
 	subtot=`bc<<- .
 		scale=2
-		$cost - $discount
+		$cost - $discount + $expenses
 		.
 	`
 	vat=`bc<<- .
@@ -180,7 +187,7 @@ l -
 l r
 l =.
 On site systems administration: 11/06/2013 |$cost
-Expenses                                   |$expenses
+$additional                                |$expenses
 Less discount				   |$discount
 					   |
 .B
