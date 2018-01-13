@@ -1,7 +1,7 @@
-#$Id: invoice,v 1.11 2018/01/13 15:05:15 fulford Exp $
+#$Id: invoice,v 1.12 2018/01/13 15:10:05 fulford Exp fulford $
 #$Source: /src/admin/usr/local/etc/RCS/invoice,v $
 #$Author: fulford $
-#$Revision: 1.11 $
+#$Revision: 1.12 $
 #
 # Copyright (c) 2012-2013 Clifford W Fulford. All rights reserved.
 # For assistance  call 0709 229 5385
@@ -81,11 +81,12 @@ if [ ! -f $invno.pdf ];then
  		$hours*$rate
 		.
 	`
-	echo $cost
+	echo "Charge : $cost"
 	discount=`bc <<- .
 		scale=2
-		$cost/100*$discount
-			.
+		$cost / 100 * $discount
+		.
+	`
 	subtot=`bc<<- .
 		scale=2
 		$cost - $discount
