@@ -1,7 +1,7 @@
-#$Id: invoice,v 1.39 2018/01/13 17:16:43 fulford Exp fulford $
+#$Id: invoice,v 1.40 2018/01/13 17:27:25 fulford Exp fulford $
 #$Source: /src/admin/usr/local/etc/RCS/invoice,v $
 #$Author: fulford $
-#$Revision: 1.39 $
+#$Revision: 1.40 $
 #
 # Copyright (c) 2012-2013 Clifford W Fulford. All rights reserved.
 # For assistance  call 0709 229 5385
@@ -74,26 +74,33 @@ if [ ! -f $invno.pdf ];then
 
 	read -p "Start date (dd/mm/yy): " sdate
 	read -p "Start time (hh:mm): " stime
-	shour=`echo $stime |gawk -F: '{print $1}'`
-	smin=`echo $stime |gawk -F: '{print $2}'`
-	smin=`bc<<- .
-		scale=2
-		($shour*60) + $smin
-		.
-	`	
-	read -p "Finish time (hh:mm): " ftime
-	fhour=`echo $ftime |gawk -F: '{print $1}'`
-	fmin=`echo $ftime |gawk -F: '{print $2}'`
-	fmin=`bc<<- .
-		scale=2
-		($fhour*60) + $fmin
-		.
-	`
-	hours=`bc<<- .
-		scale=2
-		($fmin - $smin)/60
-		.
-	`
+	if [ $stime ];then
+		shour=`echo $stime |gawk -F: '{print $1}'`
+		smin=`echo $stime |gawk -F: '{print $2}'`
+		smin=`bc<<- .
+			scale=2
+			($shour*60) + $smin
+			.
+		`	
+	fi
+	if [ $ftime ];then
+		read -p "Finish time (hh:mm): " ftime
+		fhour=`echo $ftime |gawk -F: '{print $1}'`
+		fmin=`echo $ftime |gawk -F: '{print $2}'`
+		fmin=`bc<<- .
+			scale=2
+			($fhour*60) + $fmin
+			.
+		`
+	fi
+	if [ $fmin -a $smin ];then
+		hours=`bc<<- .
+			scale=2
+			($fmin - $smin)/60
+			.
+		
+		`
+	fi
 	read -p "Hours ($hours) : " h
 	hours=${h:-$hours} 
 	read -p "Rate per hour (£$rate): " r
