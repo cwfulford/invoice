@@ -1,7 +1,7 @@
-#$Id: invoice,v 1.38 2018/01/13 17:14:02 fulford Exp fulford $
+#$Id: invoice,v 1.39 2018/01/13 17:16:43 fulford Exp fulford $
 #$Source: /src/admin/usr/local/etc/RCS/invoice,v $
 #$Author: fulford $
-#$Revision: 1.38 $
+#$Revision: 1.39 $
 #
 # Copyright (c) 2012-2013 Clifford W Fulford. All rights reserved.
 # For assistance  call 0709 229 5385
@@ -103,7 +103,7 @@ if [ ! -f $invno.pdf ];then
 	expenses="0.00"
 	read -p "Expenses ($expenses): " e
 	expenses=${e:-$expenses}	
-	if [ $expenses -gt 0 ];then 
+	if [ $expenses != "0.00" ];then 
 		addl="Expenses"
 	else
 		addl="Expenses included"
