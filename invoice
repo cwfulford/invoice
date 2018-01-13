@@ -1,7 +1,7 @@
-#$Id: invoice,v 1.29 2018/01/13 16:31:57 fulford Exp fulford $
+#$Id: invoice,v 1.30 2018/01/13 16:34:35 fulford Exp fulford $
 #$Source: /src/admin/usr/local/etc/RCS/invoice,v $
 #$Author: fulford $
-#$Revision: 1.29 $
+#$Revision: 1.30 $
 #
 # Copyright (c) 2012-2013 Clifford W Fulford. All rights reserved.
 # For assistance  call 0709 229 5385
@@ -69,7 +69,7 @@ if [ ! -f $invno.pdf ];then
 	done
 	clear
 	echo -e "\tInvoice for $company"
-	echo -e "$service support\n"
+	echo -e "\t$service support\n"
 		
 
 	read -p "Start date (dd/mm/yy): " sdate
@@ -181,9 +181,8 @@ Expenses                                   |$expenses
 Less discount				   |$discount
 					   |
 .B
-\f+1
-Total Charges				   |$subtot
-\f-1
+
+Total Charges				   |\s+1$subtot\s-1
 .R
 V.A.T at 20.00%      |$vat
 
