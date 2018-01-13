@@ -1,7 +1,7 @@
-#$Id: invoice,v 1.20 2018/01/13 15:47:01 fulford Exp $
+#$Id: invoice,v 1.21 2018/01/13 15:51:48 fulford Exp fulford $
 #$Source: /src/admin/usr/local/etc/RCS/invoice,v $
 #$Author: fulford $
-#$Revision: 1.20 $
+#$Revision: 1.21 $
 #
 # Copyright (c) 2012-2013 Clifford W Fulford. All rights reserved.
 # For assistance  call 0709 229 5385
@@ -65,9 +65,9 @@ if [ ! -f $invno.pdf ];then
 	read -p "Start time (hh:mm): " stime
 	shour=`echo $stime |gawk -F: '{print $1}'`
 	smin=`echo $stime |gawk -F: '{print $2}'`
-	smin=`bc <<- .
+	smin=`bc<<- .
 		scale=2
-		( $shours*60 ) + $min
+		($shours*60) + $smin
 		.
 	`	
 	read -p "Finish time (hh:mm): " ftime
