@@ -1,7 +1,7 @@
-#$Id: invoice,v 1.23 2018/01/13 15:54:58 fulford Exp fulford $
+#$Id: invoice,v 1.24 2018/01/13 16:14:11 fulford Exp fulford $
 #$Source: /src/admin/usr/local/etc/RCS/invoice,v $
 #$Author: fulford $
-#$Revision: 1.23 $
+#$Revision: 1.24 $
 #
 # Copyright (c) 2012-2013 Clifford W Fulford. All rights reserved.
 # For assistance  call 0709 229 5385
@@ -60,8 +60,9 @@ if [ ! -f $invno.pdf ];then
 	echo $company
 	echo $idate
 	echo
+	select service in "On-site" "Remote"
+
 	read -p "Start date (dd/mm/yy): " sdate
-	set -x
 	read -p "Start time (hh:mm): " stime
 	shour=`echo $stime |gawk -F: '{print $1}'`
 	smin=`echo $stime |gawk -F: '{print $2}'`
@@ -89,6 +90,7 @@ if [ ! -f $invno.pdf ];then
 		rate=${r:-$rate}
 	read -p "Discount percentage ($discount%): " d
 		discount=${d:-$discount}
+	
 	cost=`bc<<- .
 		scale=2
  		$hours*$rate
